@@ -8,7 +8,8 @@ import (
 	"strings"
 
 	"dnsservice-controller/pkg/config"
-	log "github.com/Sirupsen/logrus"
+
+	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
@@ -62,8 +63,8 @@ func putDnsNEW(dz *config.CrDZ) (string, error) {
 			operation = string(body)
 		}
 	}
-	log.Infof("operation %s",operation)
-	log.Infof("err %s",err)
+	log.Infof("operation %s", operation)
+	log.Infof("err %s", err)
 	return operation, err
 }
 
@@ -104,7 +105,7 @@ func HandleFuncAddNEW(dz *config.CrDZ) {
 	//Caso o uid operation nao seja fornecido no deploy, sera considerado que e uma nova url, sera chamada a funcao putDns, recebendo de volta um uid.
 	if dz.CrDNS.Operation == "0000000-0000-0000-0000-0000" || dz.CrDNS.Operation == "" {
 		operation, err := putDnsNEW(dz)
-		if match, _ := regexp.MatchString("[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}", operation); (match == false) && (err == nil)  {
+		if match, _ := regexp.MatchString("[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}", operation); (match == false) && (err == nil) {
 			patchValueStatus(*dz, "Failed", "Invalid operation number")
 			return
 		} else if err != nil {
@@ -138,7 +139,7 @@ func HandleFuncAddNEW(dz *config.CrDZ) {
 				posTTL := strings.Index(annotations, "ttl")
 				//posTTL menor que 0 é um indicio que não existe annotations.
 				if posTTL > 0 {
-					annotations = annotations[:(posTTL - 1)] + "\"operation\":" + "\"" + operation + "\"" + annotations[(posTTL - 2):]
+					annotations = annotations[:(posTTL-1)] + "\"operation\":" + "\"" + operation + "\"" + annotations[(posTTL-2):]
 				}
 				//annotations = annotations[:(posTTL - 1)] + "\"operation\":" + "\"" + operation + "\"" + annotations[(posTTL - 2):]
 				dz.CrDNS.Operation = operation
@@ -153,9 +154,12 @@ func HandleFuncAddNEW(dz *config.CrDZ) {
 		//Quando e passado um uid operation correto.
 	} else if match, _ := regexp.MatchString("[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}", dz.CrDNS.Operation); match == true {
 		posTTL := strings.Index(annotations, "ttl")
-		annotations = annotations[:(posTTL - 1)] + "\"operation\":" + "\"" + dz.CrDNS.Operation + "\"" + annotations[(posTTL - 2):]
+		annotations = annotations[:(posTTL-1)] + "\"operation\":" + "\"" + dz.CrDNS.Operation + "\"" + annotations[(posTTL-2):]
 
 		//Em caso de spec inconsistente.
+	} else if dz.CrDNS.Operation == "" || dz.CrDNS.Status.State == "Running" {
+		log.Infof("TESTEration\n")
+
 	} else {
 		log.Infof("Operation: %s\n", dz.CrDNS.Operation)
 		//return

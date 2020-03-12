@@ -1,0 +1,3 @@
+# 0.6.0
+06/27/2019		Improvements		add.go	
+	- refatoramento do codigo, para desacoplar todas as funcoes, tornando viavel o tratamento de erro http/api do broker(404, 503...).

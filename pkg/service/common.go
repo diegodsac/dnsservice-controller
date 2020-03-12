@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -13,7 +14,8 @@ import (
 	"strings"
 
 	"dnsservice-controller/pkg/config"
-	log "github.com/Sirupsen/logrus"
+
+	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/types"
@@ -33,8 +35,171 @@ func HandleFuncSucess(m string, v string) {
 	log.Infof("SUCESS - %s %s\n", m, v)
 }
 
-func HandleFuncCommonUpdate(crDZ config.CrDZ, crZONE []config.CrZONE) {
+func HandleFuncCommonUpdate(crDZNew config.CrDZ, crDZOld config.CrDZ, crZONE []config.CrZONE) {
+	var f int
+	crDZOld.SpecDNS = getSpecDnsMAP(crDZOld)
+	// printKIND(crDZOld)
+	crDZNew.SpecDNS = getSpecDnsMAP(crDZNew)
+	// printKIND(crDZNew)
+	// log.Infof("crDZOld %s", crDZOld.CFG.Cache)
+	// log.Infof("crDZNew %s", crDZNew.CFG.Cache)
+	// printZONE(crDZ)
+	tmp := fmt.Sprintf("%s", crDZOld.CFG.Cache)
+	i := strings.Index(tmp, "spec")
+	tmpSpec := tmp[i:]
+	//url
+	i = strings.Index(tmpSpec, "url")
+	if i > 0 {
+		i = i + len("url") + 2
+		URL := tmpSpec[i:]
+		f = strings.Index(URL, ",")
+		if f > 0 {
+			URL = URL[:f]
+		} else if f = strings.Index(URL, "}"); f > 0 {
+			URL = URL[:f]
+		} else {
+			URL = ""
+		}
+		// crDZOld.URL = URL
+		log.Infof("URL %s", URL)
+		log.Infof("crDZOld.SpecDNS.URL %s", crDZOld.SpecDNS.URL)
+	}
+	//description
+	i = strings.Index(tmpSpec, "description")
+	if i > 0 {
+		i = i + len("description") + 2
+		crDZOld.SpecDNS.Description = tmpSpec[i:]
+		f = strings.Index(crDZOld.SpecDNS.Description, ",")
+		if f > 0 {
+			crDZOld.SpecDNS.Description = crDZOld.SpecDNS.Description[:f]
+			crDZOld.SpecDNS.Description = strings.Replace(crDZOld.SpecDNS.Description, "\"", "", -1)
+		} else {
+			crDZOld.SpecDNS.Description = ""
+		}
+		log.Infof("crDZOld.SpecDNS.Description %s", crDZOld.SpecDNS.Description)
+	}
+	//hostname
+	i = strings.Index(tmpSpec, "hostname")
+	if i > 0 {
+		i = i + len("hostname") + 2
+		crDZOld.SpecDNS.Hostname = tmpSpec[i:]
+		f = strings.Index(crDZOld.SpecDNS.Hostname, ",")
+		if f > 0 {
+			crDZOld.SpecDNS.Hostname = crDZOld.SpecDNS.Hostname[:f]
+			crDZOld.SpecDNS.Hostname = strings.Replace(crDZOld.SpecDNS.Hostname, "\"", "", -1)
+		} else {
+			crDZOld.SpecDNS.Hostname = ""
+		}
+		log.Infof("crDZOld.SpecDNS.Hostname %s", crDZOld.SpecDNS.Hostname)
+	}
+	//operation
+	i = strings.Index(tmpSpec, "operation")
+	if i > 0 {
+		i = i + len("operation") + 2
+		crDZOld.SpecDNS.Operation = tmpSpec[i:]
+		f = strings.Index(crDZOld.SpecDNS.Operation, ",")
+		if f > 0 {
+			crDZOld.SpecDNS.Operation = crDZOld.SpecDNS.Operation[:f]
+			crDZOld.SpecDNS.Operation = strings.Replace(crDZOld.SpecDNS.Operation, "\"", "", -1)
+		} else {
+			crDZOld.SpecDNS.Operation = ""
+		}
+		log.Infof("crDZOld.SpecDNS.Operation %s", crDZOld.SpecDNS.Operation)
+	}
+	//records
+	i = strings.Index(tmpSpec, "records")
+	if i > 0 {
+		i = i + len("records") + 2
+		crDZOld.SpecDNS.Records = tmpSpec[i:]
+		f = strings.Index(crDZOld.SpecDNS.Records, ",")
+		if f > 0 {
+			crDZOld.SpecDNS.Records = crDZOld.SpecDNS.Records[:f]
+			crDZOld.SpecDNS.Records = strings.Replace(crDZOld.SpecDNS.Records, "\"", "", -1)
+		} else {
+			crDZOld.SpecDNS.Records = ""
+		}
+		log.Infof("crDZOld.SpecDNS.Records %s", crDZOld.SpecDNS.Records)
+	}
+	//server
+	i = strings.Index(tmpSpec, "server")
+	if i > 0 {
+		i = i + len("server") + 2
+		crDZOld.SpecDNS.Server = tmpSpec[i:]
+		f = strings.Index(crDZOld.SpecDNS.Server, ",")
+		if f > 0 {
+			crDZOld.SpecDNS.Server = crDZOld.SpecDNS.Server[:f]
+			crDZOld.SpecDNS.Server = strings.Replace(crDZOld.SpecDNS.Server, "\"", "", -1)
+		} else {
+			crDZOld.SpecDNS.Server = ""
+		}
+		log.Infof("crDZOld.SpecDNS.Server %s", crDZOld.SpecDNS.Server)
+	}
+	//ttl
+	i = strings.Index(tmpSpec, "ttl")
+	if i > 0 {
+		i = i + len("ttl") + 2
+		crDZOld.SpecDNS.TTL = tmpSpec[i:]
+		f = strings.Index(crDZOld.SpecDNS.TTL, ",")
+		if f > 0 {
+			crDZOld.SpecDNS.TTL = crDZOld.SpecDNS.TTL[:f]
+			crDZOld.SpecDNS.TTL = strings.Replace(crDZOld.SpecDNS.TTL, "\"", "", -1)
+		} else {
+			crDZOld.SpecDNS.TTL = "0"
+		}
+		log.Infof("crDZOld.SpecDNS.TTL %s", crDZOld.SpecDNS.TTL)
+	}
+	//type
+	i = strings.Index(tmpSpec, "type")
+	if i > 0 {
+		i = i + len("type") + 2
+		crDZOld.SpecDNS.Type = tmpSpec[i:]
+		f = strings.Index(crDZOld.SpecDNS.Type, ",")
+		if f > 0 {
+			crDZOld.SpecDNS.Type = crDZOld.SpecDNS.Type[:f]
+			crDZOld.SpecDNS.Type = strings.Replace(crDZOld.SpecDNS.Type, "\"", "", -1)
+		} else {
+			crDZOld.SpecDNS.Type = ""
+		}
+		log.Infof("crDZOld.SpecDNS.Type %s", crDZOld.SpecDNS.Type)
+	}
+	//zone
+	i = strings.Index(tmpSpec, "zone")
+	if i > 0 {
+		i = i + len("zone") + 2
+		crDZOld.SpecDNS.Zone = tmpSpec[i:]
+		f = strings.Index(crDZOld.SpecDNS.Zone, "}")
+		if f > 0 {
+			crDZOld.SpecDNS.Zone = crDZOld.SpecDNS.Zone[:f]
+			crDZOld.SpecDNS.Zone = strings.Replace(crDZOld.SpecDNS.Zone, "\"", "", -1)
+		} else {
+			crDZOld.SpecDNS.Zone = ""
+		}
 
+		log.Infof("crDZOld.SpecDNS.Zone %s", crDZOld.SpecDNS.Zone)
+	}
+	printKIND(crDZOld)
+	// log.Infof("TMP %s", tmpSpec)
+	// log.Infof("URL %s", url)
+	if crDZNew.URL == crDZOld.URL {
+		log.Infof("########################\n")
+		if (crDZNew.SpecDNS.Description == "") && (crDZNew.SpecDNS.Hostname == "") &&
+			(crDZNew.SpecDNS.Operation == "") && (crDZNew.SpecDNS.Records == "") &&
+			(crDZNew.SpecDNS.Server == "") && (crDZNew.SpecDNS.Type == "") && (crDZNew.SpecDNS.Zone == "") {
+			// if crDZNew.SpecDNS.Description == "" {
+			crDZNew.SpecDNS.Description = crDZOld.SpecDNS.Description
+			crDZNew.SpecDNS.Hostname = crDZOld.SpecDNS.Hostname
+			crDZNew.SpecDNS.Operation = crDZOld.SpecDNS.Operation
+			crDZNew.SpecDNS.Records = crDZOld.SpecDNS.Records
+			crDZNew.SpecDNS.Server = crDZOld.SpecDNS.Server
+			crDZNew.SpecDNS.TTL = crDZOld.SpecDNS.TTL
+			crDZNew.SpecDNS.Type = crDZOld.SpecDNS.Type
+			crDZNew.SpecDNS.Zone = crDZOld.SpecDNS.Zone
+			log.Infof("-------------------------\n")
+			patchCrDNS(&crDZNew)
+		}
+	}
+	log.Infof("crDZNEWW\n")
+	printKIND(crDZNew)
 }
 
 //-------------------------------------------NEW------------------------------------------------------
@@ -121,7 +286,7 @@ func getSpecZone(crDZ config.CrDZ, crZONE config.CrZONE) config.SpecZONE {
 func getProvision(dz *config.CrDZ) (string, string) {
 	var state, description string
 
-	url := "https://broker.nuvem.bb.com.br/osb/v2/service_instances/" + dz.CrDNS.UID + "/last_operation?service_id=" + dz.Serviceid + "&plan_id=" + dz.Planid + "&operation=" + dz.Operation
+	url := dz.SpecZONE.Server + dz.SpecZONE.Url1 + dz.CrDNS.UID + "/last_operation?service_id=" + dz.Serviceid + "&plan_id=" + dz.Planid + "&operation=" + dz.Operation
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -339,7 +504,7 @@ func patchAnnotations(dz config.CrDZ) {
 	if strings.Index(annotations, "spec") > 0 {
 		annotations = annotations[0:strings.Index(annotations, "spec")+7] + tmpAnnotations
 	} else if (len(annotations) - 3) > 0 {
-		annotations = annotations[0:(len(annotations) - 3)] + "," + tmpAnnotations
+		annotations = annotations[0:(len(annotations)-3)] + "," + tmpAnnotations
 	} else {
 		get, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Get(dz.NameDNS, metav1.GetOptions{})
 		if err != nil {
@@ -359,9 +524,9 @@ func patchAnnotations(dz config.CrDZ) {
 		//log.Infof("tmpNameSpace %s", tmpNameSpace)
 		tmpAnnotations = "\"namespace\":\"" + tmpNameSpace + "\"},\"spec\":{" + tmpAnnotations
 		tmpAnnotations = "\"name\":\"" + tmpName + "\"," + tmpAnnotations
-		tmpAnnotations = "\"metadata\":{\"annotations\":{},"+ tmpAnnotations
-		tmpAnnotations = "\"kind\":\"" + tmpKind + "\","+ tmpAnnotations
-		tmpAnnotations = "{\"apiVersion\":\"" + tmpApiVersion + "\","+ tmpAnnotations
+		tmpAnnotations = "\"metadata\":{\"annotations\":{}," + tmpAnnotations
+		tmpAnnotations = "\"kind\":\"" + tmpKind + "\"," + tmpAnnotations
+		tmpAnnotations = "{\"apiVersion\":\"" + tmpApiVersion + "\"," + tmpAnnotations
 		log.Infof("tmpAnnotations %s", tmpAnnotations)
 		annotations = tmpAnnotations
 		//getservice["status"] = map[string]interface{}{"message": message, "state": state}
@@ -468,8 +633,9 @@ INIT:
 			printKIND(crDZ)
 			if crDZ.URL != "" {
 				tmpURL := crDZ.URL + "."
+				//Multiplas zonas
 				if len(crZONE) > 1 {
-					log.Infof("Varias Zonas")
+					log.Infof("Multiplas Zonas")
 					log.Infof("%v", tmpURL)
 					for i := 0; i < len(crZONE); i++ {
 						crZONE[i].SpecZONE = getSpecZone(crDZ, crZONE[i])
@@ -489,8 +655,10 @@ INIT:
 					}
 
 					printKIND(crDZ)
+					//Unica zona de dns
 				} else {
 					crZONE[0].SpecZONE = getSpecZone(crDZ, crZONE[0])
+
 					log.Infof("Comparação: %s -- %s", tmpURL, crZONE[0].Zone)
 					if strings.Index(tmpURL, crZONE[0].Zone) > 0 {
 						crDZ.SpecZONE = crZONE[0].SpecZONE
@@ -523,9 +691,46 @@ INIT:
 		}
 		//patchValueStatus(crDZ, "Pending", "Creating...")
 	} else if crDZ.CrDNS.State == "Failed" {
+		log.Infof("TESTEration\n")
 
 	} else if crDZ.CrDNS.State == "Running" {
+		log.Infof("###########TESTE  #############")
+		if crDZ.CrDNS.Message == "provision job complete" {
 
+			if crDZ.CrDNS.Description == "" || crDZ.CrDNS.Records == "" || crDZ.CrDNS.Hostname == "" {
+				log.Infof("###########TESTE 1 ENTRADA #############")
+				printKIND(crDZ)
+				if crDZ.URL != "" {
+					tmpURL := crDZ.URL + "."
+					//Multiplas zonas
+					if len(crZONE) > 1 {
+						log.Infof("Multiplas Zonas")
+						log.Infof("%v", tmpURL)
+						for i := 0; i < len(crZONE); i++ {
+							crZONE[i].SpecZONE = getSpecZone(crDZ, crZONE[i])
+							log.Infof("Comparação: %s -- %s", tmpURL, crZONE[i].Zone)
+							if strings.Index(tmpURL, crZONE[i].Zone) > 0 {
+								crDZ.SpecZONE = crZONE[i].SpecZONE
+								crDZ.SpecDNS = getSpecDnsCrZONE(crDZ)
+								patchCrDNS(&crDZ)
+								break
+							}
+						}
+					} else {
+						crZONE[0].SpecZONE = getSpecZone(crDZ, crZONE[0])
+						log.Infof("Comparação: %s -- %s", tmpURL, crZONE[0].Zone)
+						if strings.Index(tmpURL, crZONE[0].Zone) > 0 {
+							crDZ.SpecZONE = crZONE[0].SpecZONE
+							crDZ.SpecDNS = getSpecDnsCrZONE(crDZ)
+							patchCrDNS(&crDZ)
+						}
+					}
+					printZONE(crDZ)
+					log.Infof("###########TESTE 1 SAINDO #############")
+				}
+			}
+		}
+		// if
 	}
 	patchAnnotations(crDZ)
 	//Chamar add

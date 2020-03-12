@@ -1,3 +1,4 @@
+#0.5.1
 FROM atf.intranet.bb.com.br:5001/bb-infra/aic/aic-go-alpine3.9:1.0.0 as builder
 
 ENV DEP_VERSION=v0.5.1 \

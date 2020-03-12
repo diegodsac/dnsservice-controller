@@ -201,6 +201,18 @@
 			"revisionTime": "2018-11-01T06:04:56Z"
 		},
 		{
+			"checksumSHA1": "aFpql3G+Nw8zkzfqLWQJNZC8pu0=",
+			"path": "golang.org/x/net/context/ctxhttp",
+			"revision": "16171245cfb220d5317888b716d69c1fb4e7992b",
+			"revisionTime": "2020-01-30T10:58:50Z"
+		},
+		{
+			"checksumSHA1": "pCY4YtdNKVBYRbNvODjx8hj0hIs=",
+			"path": "golang.org/x/net/http/httpguts",
+			"revision": "16171245cfb220d5317888b716d69c1fb4e7992b",
+			"revisionTime": "2020-01-30T10:58:50Z"
+		},
+		{
 			"checksumSHA1": "kyg0RtP8/9yWNDqf+hDaedKzf18=",
 			"origin": "k8s.io/apimachinery/vendor/golang.org/x/net/http2",
 			"path": "golang.org/x/net/http2",
@@ -754,6 +766,12 @@
 			"revisionTime": "2018-11-01T06:04:56Z"
 		},
 		{
+			"checksumSHA1": "jrjTCTpCgibAeeKXRMZMZvp3lPk=",
+			"path": "k8s.io/client-go/discovery/fake",
+			"revision": "5be5d5753fd2079867ab0adc3f01f3b1c9337ecf",
+			"revisionTime": "2020-02-07T13:56:27Z"
+		},
+		{
 			"checksumSHA1": "e63XOv8ZvEGh16EJ0PLw/n1/2AQ=",
 			"path": "k8s.io/client-go/dynamic",
 			"revision": "855e624bb96f7f35560c0b207acb20f0bc154408",
@@ -1108,6 +1126,12 @@
 			"revisionTime": "2018-11-01T06:04:56Z"
 		},
 		{
+			"checksumSHA1": "PCmCOo7V1KqZAd4iFALqcNjBt5A=",
+			"path": "k8s.io/client-go/util/keyutil",
+			"revision": "5be5d5753fd2079867ab0adc3f01f3b1c9337ecf",
+			"revisionTime": "2020-02-07T13:56:27Z"
+		},
+		{
 			"checksumSHA1": "VK8XBxAuEr0Vp9W96bH1niYlLvc=",
 			"path": "k8s.io/client-go/util/retry",
 			"revision": "855e624bb96f7f35560c0b207acb20f0bc154408",
@@ -1120,10 +1144,28 @@
 			"revisionTime": "2018-11-01T06:04:56Z"
 		},
 		{
+			"checksumSHA1": "PyLblzP+lUJI6LcPrK5/oEcut0k=",
+			"path": "k8s.io/klog",
+			"revision": "3ca30a56d8a775276f9cdae009ba326fdc05af7f",
+			"revisionTime": "2019-08-07T17:06:51Z"
+		},
+		{
 			"checksumSHA1": "h2W7fCaCOwCsXxBgmm7pjzT/akk=",
 			"path": "k8s.io/kube-openapi/pkg/util/proto",
 			"revision": "72693cb1fadd73ae2742f6fe29af77d1aecdd8cd",
 			"revisionTime": "2018-10-31T20:37:59Z"
+		},
+		{
+			"checksumSHA1": "rZ3TvI01NH0dGKeSwx+8HTHj4q8=",
+			"path": "k8s.io/utils/integer",
+			"revision": "861946025e3491219eaccb1bf693e23df70c2fa8",
+			"revisionTime": "2020-01-24T19:00:32Z"
+		},
+		{
+			"checksumSHA1": "scvcz4KmjJ05Wl0V5ZzAc6NAI48=",
+			"path": "sigs.k8s.io/yaml",
+			"revision": "9fc95527decd95bb9d28cc2eab08179b2d0f6971",
+			"revisionTime": "2020-02-04T15:11:26Z"
 		}
 	],
 	"rootPath": "dnsservice-controller"

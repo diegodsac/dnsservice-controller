@@ -12,7 +12,7 @@ spec:
       kind: DnsService
    validation:
       openAPIV3Schema:
-         required:2
+         required:
          - spec
          properties:
             spec:

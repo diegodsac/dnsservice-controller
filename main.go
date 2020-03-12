@@ -9,7 +9,7 @@ import (
 	//"net/http"
 
 	//"github.com/gorilla/mux"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/meta"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -34,7 +34,7 @@ func getKubernetesClient() (kubernetes.Interface, dnsserviceclientset.Interface)
 
 	if err != nil {
 		// construct the path to resolve to `~/.kube/config`
-		kubeConfigPath := os.Getenv("HOME") + "/.kube/config"
+		kubeConfigPath := os.Getenv("HOME") + "/.kube/k8s-desenv"
 
 		// create the config from the path
 		config, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
@@ -140,15 +140,26 @@ func main() {
 			log.Infof("Add dnsservice: %s", key)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			var crDZ [1]config.CrDZ
-			key, err := cache.MetaNamespaceKeyFunc(newObj)
+			var crDZOld config.CrDZ
+			var crDZNew config.CrDZ
+			key, err := cache.MetaNamespaceKeyFunc(oldObj)
 			//Struct Config Spec
-			key2, _ := meta.Accessor(newObj)
-			crDZ[1].CrDNS.UID = string(key2.GetUID())
-			crDZ[1].NameDNS = string(key2.GetName())
-			crDZ[1].NsDNS = string(key2.GetNamespace())
-			crDZ[1].CFG.Cache = key2
-			service.HandleFuncCommonUpdate(crDZ[1], crZONE)
+			key2, _ := meta.Accessor(oldObj)
+			key3, _ := meta.Accessor(newObj)
+			log.Infof("oldObj: %s", key2)
+			log.Infof("newObj: %s", key3)
+			crDZOld.CrDNS.UID = string(key2.GetUID())
+			crDZOld.NameDNS = string(key2.GetName())
+			crDZOld.NsDNS = string(key2.GetNamespace())
+			crDZOld.Cfg = &cfg
+			crDZOld.CFG.Cache = key2
+			crDZNew.CrDNS.UID = string(key3.GetUID())
+			crDZNew.NameDNS = string(key3.GetName())
+			crDZNew.NsDNS = string(key3.GetNamespace())
+			crDZNew.Cfg = &cfg
+			crDZNew.CFG.Cache = key3
+
+			service.HandleFuncCommonUpdate(crDZNew, crDZOld, crZONE)
 			log.Infof("Update dnsservice: %s", key)
 			if err == nil {
 				queue.Add(key)

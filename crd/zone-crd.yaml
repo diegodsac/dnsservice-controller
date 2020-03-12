@@ -1,0 +1,84 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+   name: dnszones.io.bb.com.br
+spec:
+   group: io.bb.com.br
+   version: v1
+   names:
+      singular: dnszone
+      kind: DnsZone
+      plural: dnszones
+   scope: Namespaced
+   validation:
+      openAPIV3Schema:
+         required:
+         - spec
+         properties:
+            spec:
+               required:
+               - authkey
+               - server
+               - zone
+               - records
+               - type
+               - ttl
+               - description
+               - brokerversion
+               - brokeridentity
+               - clusterid
+               - namespace
+               - platform 
+               - serviceid 
+               - planid 
+               - url1
+               - url2
+               properties:
+                  authkey:
+                     type: string
+                     minimum: 1
+                  server:
+                     type: string
+                     minimum: 1
+                  zone:
+                     type: string
+                     minimum: 1
+                  records:
+                     type: string
+                     minimum: 1
+                  type:
+                     type: string
+                     minimum: 1
+                  ttl:
+                     type: string
+                     minimum: 1
+                  description:
+                     type: string
+                     minimum: 1       
+                  brokerversion:
+                     type: string
+                     minimum: 1
+                  brokeridentity:
+                     type: string
+                     minimum: 1
+                  clusterid:
+                     type: string
+                     minimum: 1
+                  namespace:
+                     type: string
+                     minimum: 1
+                  platform:
+                     type: string
+                     minimum: 1
+                  serviceid:
+                     type: string
+                     minimum: 1
+                  planid:
+                     type: string
+                     minimum: 1
+                  url1:
+                     type: string
+                     minimum: 1
+                  url2:
+                     type: string
+                     minimum: 1

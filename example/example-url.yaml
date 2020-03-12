@@ -1,0 +1,8 @@
+cat <<EOF | kubectl apply -f -
+    apiVersion: io.bb.com.br/v1
+    kind: DnsService
+    metadata:
+      name: k8stes
+    spec:
+      url: k8stes.desenv.bb.com.br
+EOF

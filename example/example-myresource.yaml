@@ -1,0 +1,12 @@
+apiVersion: io.bb.com.br/v1
+kind: DnsService
+metadata:
+   name: example-myresource
+spec:
+   server: https://broker.nuvem.bb.com.br
+   zone: desenv.bb.com.br.
+   hostname: rancher.psc.
+   type: A
+   ttl: 3600
+   records: 10.8.2.29,
+   description: Rancher

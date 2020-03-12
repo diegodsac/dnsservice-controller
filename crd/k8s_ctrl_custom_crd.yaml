@@ -1,0 +1,14 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+   name: dnsservices.io.bb.com.br
+spec:
+   group: io.bb.com.br
+   version: v1
+   names:
+      singular: dnsservice
+      kind: DnsService
+      plural: dnsservices
+   scope: Namespaced
+   subresources:
+      status: {}

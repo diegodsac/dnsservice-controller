@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="com.googlecode.goclipse.launch.goLaunchType">
+<stringAttribute key="buildCommand" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;command_invocation append_env=&quot;true&quot; command_arguments=&quot;${GOATH} install -v -gcflags &amp;quot;-N -l&amp;quot; dnsservice-controller&quot;&gt;&#10;&lt;env_vars/&gt;&#10;&lt;/command_invocation&gt;&#10;"/>
+<booleanAttribute key="buildCommand_UseDefault" value="false"/>
+<stringAttribute key="buildTarget" value="build:dnsservice-controller"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/dnsservice-controller"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<stringAttribute key="programArguments" value=""/>
+<booleanAttribute key="programPath_UseDefault" value="true"/>
+<stringAttribute key="project" value="dnsservice-controller"/>
+</launchConfiguration>

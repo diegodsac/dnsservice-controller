@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+   name: dnsservice-controller
+spec:
+   replicas: 1
+   selector:
+      matchLabels:
+         name: dnsservice-controller
+   template:
+      metadata:
+         labels:
+            name: dnsservice-controller
+      spec:
+         serviceAccountName: dnsservice-controller
+         containers:
+         -  name: dnsservice-controller
+# Replace this with the built image name
+            image: diegosbsd/dnsservice:0.5.2
+            command:
+            - dnsservice-controller
+            imagePullPolicy: IfNotPresent
+            env:
+            -  name: dnsservice
+               valueFrom:
+                  fieldRef:
+                     fieldPath: metadata.namespace
+            -  name: dnsservice-controller
+               valueFrom:
+                  fieldRef:
+                     fieldPath: metadata.name
+            -  name: dnsservice-controller
+               value: dnsservice-controller

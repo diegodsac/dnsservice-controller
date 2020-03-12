@@ -1,24 +1,24 @@
-#cat <<EOF | kubectl apply -f -
 apiVersion: io.bb.com.br/v1
 kind: DnsZone
 metadata:
    name: dnsbb-hm
    namespace: dnsservice
 spec:
-   authkey: "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJzZXJ2aWNlLWJyb2tlciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJzZXJ2aWNlLWNhdGFsb2ctdXN1YXJpb3MtdG9rZW4tMnN3eHgiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoic2VydmljZS1jYXRhbG9nLXVzdWFyaW9zIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiYzlhYTY4OGEtMWYxMy0xMWU5LTkzYTQtMDA1MDU2YWZhODRlIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OnNlcnZpY2UtYnJva2VyOnNlcnZpY2UtY2F0YWxvZy11c3VhcmlvcyJ9.tL-MISk9e5pjRJF3OgpD6FxRG1qrGzVlTZV-_iVMFChwf6qlXL7WsVDKtpwyDIeB_EnkI__Uav3vl-d6MZ09GqgYSxnrvNYeYm8s0xP86VHIcPHZ68mrQ73mC2HrhDurulLHCidCnjNa5zkUWQOIzdqiYfzYBkIPS3uCL7FP-vouIJRuoAy3O9rqns0TpsAr0DvBVCEmlKqDtDkkgU8tj8Eg2lJ_jXNsUCoYaOagST2kXpme84UlMID57nqIzQC7rqql0C_N-_HycgltroJari4G4LgYpXCUhT_ifiJdMFnC7xnVLdtMxOHcThn76CTEYBKi9NS5woym-MQ17yPNAg"
-   server: "https://broker.nuvem.bb.com.br"
+   authkey: "Basic azhzLWJiY2xvdWQ6NTE0ODBmOTUtN2RiNS00MzQ2LTg4ZGYtODliNmQ0MzcwMTI"
+   server: "https://oaas-broker.sgh.desenv.bb.com.br"
    zone: "hm.bb.com.br."
    records: "nuvem.hm.dc.bb.com.br."
    type: "CNAME"
    ttl: "3600"
    description: "Rancher"
    brokerversion: "2.13"
-   brokeridentity: "kubernetes eyJ1c2VybmFtZSI6Imt1YmUtYWRtaW4tcHhsMXBzY210MDAyIiwidWlkIjoiIiwiZ3JvdXBzIjpbInN5c3RlbTptYXN0ZXJzIiwic3lzdGVtOmF1dGhlbnRpY2F0ZWQiXX0="
+   brokeridentity: "k8s-bbcloud eyJwcm9qZWN0X2lkIjogInRlc3RlIn0K"
    clusterid: "63cdf3a0-134d-11e9-85a6-7e5c1a25d90f"
    namespace: "automation-broker"
    platform: "kubernetes"
-   serviceid: "67779bd36cb82c40b9110595e50fe539"
-   planid: "8e7ee963b93441646af609a0b79c7dd2"
+   serviceid: "dns-v1"
+   planid: "default"
+   spaceguid: "001"
+   organizationguid: "001"
    url1: "/osb/v2/service_instances/"
    url2: "?accepts_incomplete=true"
-#EOF

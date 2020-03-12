@@ -222,17 +222,19 @@ func printKIND(dz config.CrDZ) {
 
 }
 
-func printZONE(dz config.CrDZ) {
-	log.Infof("AuthKey %s", dz.CrZONE.AuthKey)
-	log.Infof("BrokerVersion %s", dz.CrZONE.BrokerVersion)
-	log.Infof("BrokerIdentity %s", dz.CrZONE.BrokerIdentity)
-	log.Infof("Clusterid %s", dz.CrZONE.Clusterid)
-	log.Infof("Namespace %s", dz.CrZONE.Namespace)
-	log.Infof("Platform %s", dz.CrZONE.Platform)
-	log.Infof("Serviceid %s", dz.CrZONE.Serviceid)
-	log.Infof("Planid %s", dz.CrZONE.Planid)
-	log.Infof("Url1 %s", dz.CrZONE.Url1)
-	log.Infof("Url2 %s", dz.CrZONE.Url2)
+func printZONE(crZONE config.CrZONE) {
+	log.Infof("AuthKey %s", crZONE.AuthKey)
+	log.Infof("BrokerVersion %s", crZONE.BrokerVersion)
+	log.Infof("BrokerIdentity %s", crZONE.BrokerIdentity)
+	log.Infof("Clusterid %s", crZONE.Clusterid)
+	log.Infof("Namespace %s", crZONE.Namespace)
+	log.Infof("Platform %s", crZONE.Platform)
+	log.Infof("Serviceid %s", crZONE.Serviceid)
+	log.Infof("Planid %s", crZONE.Planid)
+	log.Infof("Organizationguid %s", crZONE.Organizationguid)
+	log.Infof("Spaceguid %s", crZONE.Spaceguid)
+	log.Infof("Url1 %s", crZONE.Url1)
+	log.Infof("Url2 %s", crZONE.Url2)
 	//log.Infof("Status %s", dz.CrZONE.Status)
 	//log.Infof("Message %s", dz.CrZONE.Message)
 
@@ -278,6 +280,8 @@ func getSpecZone(crDZ config.CrDZ, crZONE config.CrZONE) config.SpecZONE {
 	crZONE.Platform, _ = mapToString("spec", "platform", mapZONE)
 	crZONE.Serviceid, _ = mapToString("spec", "serviceid", mapZONE)
 	crZONE.Planid, _ = mapToString("spec", "planid", mapZONE)
+	crZONE.Spaceguid, _ = mapToString("spec", "spaceguid", mapZONE)
+	crZONE.Organizationguid, _ = mapToString("spec", "organizationguid", mapZONE)
 	crZONE.Url1, _ = mapToString("spec", "url1", mapZONE)
 	crZONE.Url2, _ = mapToString("spec", "url2", mapZONE)
 	return crZONE.SpecZONE
@@ -616,6 +620,7 @@ func HandleFuncCommonAdd(crDZ config.CrDZ, crZONE []config.CrZONE) {
 	//TODO 2) Status da aplicaçao
 	//TODO 3) atualizar o spec com as informaçoes não passadas
 
+	// log.Infof("ZONAZONAZONAZONAZONAZONA %s\n", crZONE)
 INIT:
 	crDZ.SpecDNS = getSpecDnsMAP(crDZ)
 	//printKIND(crDZ)
@@ -658,7 +663,8 @@ INIT:
 					//Unica zona de dns
 				} else {
 					crZONE[0].SpecZONE = getSpecZone(crDZ, crZONE[0])
-
+					log.Infof("ZONAZONAZONAZONAZONAZONA %s\n")
+					printZONE(crZONE[0])
 					log.Infof("Comparação: %s -- %s", tmpURL, crZONE[0].Zone)
 					if strings.Index(tmpURL, crZONE[0].Zone) > 0 {
 						crDZ.SpecZONE = crZONE[0].SpecZONE
@@ -725,7 +731,7 @@ INIT:
 							patchCrDNS(&crDZ)
 						}
 					}
-					printZONE(crDZ)
+					printZONE(crDZ.CrZONE)
 					log.Infof("###########TESTE 1 SAINDO #############")
 				}
 			}

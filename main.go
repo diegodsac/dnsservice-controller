@@ -34,7 +34,7 @@ func getKubernetesClient() (kubernetes.Interface, dnsserviceclientset.Interface)
 
 	if err != nil {
 		// construct the path to resolve to `~/.kube/config`
-		kubeConfigPath := os.Getenv("HOME") + "/.kube/k8s-desenv"
+		kubeConfigPath := os.Getenv("HOME") + "/.kube/config"
 
 		// create the config from the path
 		config, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)

@@ -35,10 +35,11 @@ func patchDeployNEW(dz *config.CrDZ, annotations string, getMap map[string]inter
 func putDnsNEW(dz *config.CrDZ) (string, error) {
 	var operation string
 	log.Infof("INIT putDnsNEW")
-	printZONE(*dz)
+	printZONE(*&dz.CrZONE)
 	url := dz.SpecZONE.Server + dz.SpecZONE.Url1 + dz.CrDNS.UID + dz.SpecZONE.Url2
 	log.Infof("\n[%T] - URL  %s", url, url)
-	payload := strings.NewReader("{\n  \"service_id\": \"" + dz.Serviceid + "\",\n  \"plan_id\": \"" + dz.Planid + "\",\n  \"context\": {\n\t\"clusterid\": \"" + dz.SpecZONE.Clusterid + "\",\n\t\"namespace\": \"" + dz.Namespace + "\",\n\t\"platform\": \"" + dz.SpecZONE.Platform + "\"\n  },\n  \"parameters\": {\n  \t\"zone\": \"" + dz.CrDNS.Zone + "\",\n    \"hostname\": \"" + dz.CrDNS.Hostname + dz.CrDNS.Zone + "\",\n\t\"tipo\": \"" + dz.CrDNS.Type + "\",\n\t\"ttl\": \"" + dz.CrDNS.TTL + "\",\n\t\"records\": [\"" + dz.CrDNS.Records + "\"],\n\t\"descricao\": \"" + dz.CrDNS.Description + "\"\n  }\n}")
+	// payload := strings.NewReader("{\n  \"service_id\": \"" + dz.Serviceid + "\",\n  \"plan_id\": \"" + dz.Planid + "\",\n  \"context\": {\n\t\"clusterid\": \"" + dz.SpecZONE.Clusterid + "\",\n\t\"namespace\": \"" + dz.Namespace + "\",\n\t\"platform\": \"" + dz.SpecZONE.Platform + "\"\n  },\n  \"parameters\": {\n  \t\"zone\": \"" + dz.CrDNS.Zone + "\",\n    \"hostname\": \"" + dz.CrDNS.Hostname + dz.CrDNS.Zone + "\",\n\t\"tipo\": \"" + dz.CrDNS.Type + "\",\n\t\"ttl\": \"" + dz.CrDNS.TTL + "\",\n\t\"records\": [\"" + dz.CrDNS.Records + "\"],\n\t\"descricao\": \"" + dz.CrDNS.Description + "\"\n  }\n}")
+	payload := strings.NewReader("{\n    \"service_id\": \"" + dz.Serviceid + "\",\n    \"organization_guid\": \"" + dz.Organizationguid + "\",\n    \"space_guid\": \"" + dz.Spaceguid + "\",\n    \"plan_id\": \"" + dz.Planid + "\",\n    \"context\": {\n        \"project_id\": \"" + dz.Hostname + "\",\n        \"clusterid\": \"" + dz.SpecZONE.Clusterid + "\",\n        \"namespace\": \"" + dz.Namespace + "\",\n        \"platform\": \"" + dz.SpecZONE.Platform + "\"\n    },\n    \"parameters\": {\n        \"ex_var_zone\": \"" + dz.CrDNS.Zone + "\",\n        \"hostname\": \"" + dz.CrDNS.Hostname + dz.CrDNS.Zone + "\",\n        \"tipo\": \"" + dz.CrDNS.Type + "\",\n        \"ttl\": \"" + dz.CrDNS.TTL + "\",\n        \"reverso\": \"false\",\n        \"str_records\": \"" + dz.CrDNS.Records + "\",\n        \"descricao\": \"" + dz.CrDNS.Description + "\"\n    }\n}")
 	log.Infof("\n[%T] - payload  %s", payload, payload)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},

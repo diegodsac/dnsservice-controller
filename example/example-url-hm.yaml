@@ -1,8 +1,6 @@
-cat <<EOF | kubectl apply -f -
 apiVersion: io.bb.com.br/v1
 kind: DnsService
 metadata:
   name: exemplo-url-hm
 spec:
-  url: exemplo2.hm.bb.com.br
-EOF
+  url: k8s1627.desenv.bb.com.br

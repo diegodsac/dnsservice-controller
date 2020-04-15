@@ -11,8 +11,12 @@ import (
 
 func HandleFuncDeleteNEW(dz config.CrDZ) {
 	dryRUN := false
-
-	url := dz.SpecZONE.Server + dz.SpecZONE.Url1 + dz.SpecDNS.UID + dz.SpecZONE.Url2 + "&plan_id=" + dz.SpecZONE.Planid + "&service_id=" + dz.SpecZONE.Serviceid + "&operation=" + dz.SpecDNS.Operation
+	var url string
+	if (dz.SpecZONE.Spaceguid != "") || (dz.SpecZONE.Organizationguid != "") || (dz.SpecDNS.Operation == "") {
+		url = dz.SpecZONE.Server + dz.SpecZONE.Url1 + dz.SpecDNS.UID + dz.SpecZONE.Url2 + "&plan_id=" + dz.SpecZONE.Planid + "&service_id=" + dz.SpecZONE.Serviceid
+	} else {
+		url = dz.SpecZONE.Server + dz.SpecZONE.Url1 + dz.SpecDNS.UID + dz.SpecZONE.Url2 + "&plan_id=" + dz.SpecZONE.Planid + "&service_id=" + dz.SpecZONE.Serviceid + "&operation=" + dz.SpecDNS.Operation
+	}
 	log.Infof("\n[%T] - URL  %s", url, url)
 	if dryRUN == false {
 		tr := &http.Transport{
@@ -26,15 +30,12 @@ func HandleFuncDeleteNEW(dz config.CrDZ) {
 		} else {
 			HandleFuncSucess("SERVER", "string(req)")
 		}
+
+		req.Header.Set("X-Broker-API-Version", dz.SpecZONE.BrokerVersion)
 		req.Header.Set("X-Broker-Api-Originating-Identity", dz.SpecZONE.BrokerIdentity)
-		req.Header.Set("cache-control", "no-cache,no-cache")
+		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Authorization", dz.SpecZONE.AuthKey)
-		req.Header.Set("User-Agent", "PostmanRuntime/7.11.0")
-		req.Header.Set("Accept", "*/*")
-		req.Header.Set("Host", "broker.nuvem.bb.com.br")
-		req.Header.Set("accept-encoding", "gzip, deflate")
-		req.Header.Set("content-length", "")
-		req.Header.Set("Connection", "keep-alive")
+
 		resp, err := client.Do(req)
 		if err == nil {
 			defer resp.Body.Close()

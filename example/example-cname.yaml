@@ -1,4 +1,3 @@
-cat <<EOF | kubectl apply -f -
 apiVersion: io.bb.com.br/v1
 kind: DnsService
 metadata:
@@ -11,4 +10,3 @@ spec:
    ttl: 3600
    records: svc-nuvem.dc.bb.com.br.
    description: k8s-servicos
-EOF

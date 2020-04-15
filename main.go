@@ -34,7 +34,8 @@ func getKubernetesClient() (kubernetes.Interface, dnsserviceclientset.Interface)
 
 	if err != nil {
 		// construct the path to resolve to `~/.kube/config`
-		kubeConfigPath := os.Getenv("HOME") + "/.kube/k8s-desenv"
+		//kubeConfigPath := os.Getenv("HOME") + "/.kube/k8s-desenv"
+		kubeConfigPath := os.Getenv("HOME") + "/.kube/config"
 
 		// create the config from the path
 		config, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
@@ -66,6 +67,16 @@ func main() {
 	var UID_OLD string
 	client, dnsserviceClient := getKubernetesClient()
 	tmpZone := os.Getenv("NAME")
+	tmpNsZone := os.Getenv("NAMESPACE")
+	if (tmpZone == "") || (tmpNsZone == "") {
+		if tmpZone == "" {
+			log.Infof("Error - NAME")
+		}
+		if tmpNsZone == "" {
+			log.Infof("Error - NAMESPACE")
+		}
+		return
+	}
 	if strings.Index(tmpZone, ",") > 0 {
 		tmpZoneSplit := strings.Split(tmpZone, ",")
 		crZONE = make([]config.CrZONE, len(tmpZoneSplit))
@@ -146,8 +157,8 @@ func main() {
 			//Struct Config Spec
 			key2, _ := meta.Accessor(oldObj)
 			key3, _ := meta.Accessor(newObj)
-			log.Infof("oldObj: %s", key2)
-			log.Infof("newObj: %s", key3)
+			// log.Infof("oldObj: %s", key2)
+			// log.Infof("newObj: %s", key3)
 			crDZOld.CrDNS.UID = string(key2.GetUID())
 			crDZOld.NameDNS = string(key2.GetName())
 			crDZOld.NsDNS = string(key2.GetNamespace())

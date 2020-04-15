@@ -19,8 +19,10 @@ limitations under the License.
 package v1
 
 import (
+	"context"
 	v1 "dnsservice-controller/pkg/apis/dnsservice/v1"
 	scheme "dnsservice-controller/pkg/client/clientset/versioned/scheme"
+
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -68,7 +70,7 @@ func (c *myResources) Get(name string, options meta_v1.GetOptions) (result *v1.D
 		Resource("dnsservices").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -80,7 +82,7 @@ func (c *myResources) List(opts meta_v1.ListOptions) (result *v1.DnsServiceList,
 		Namespace(c.ns).
 		Resource("dnsservices").
 		VersionedParams(&opts, scheme.ParameterCodec).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -92,7 +94,7 @@ func (c *myResources) Watch(opts meta_v1.ListOptions) (watch.Interface, error) {
 		Namespace(c.ns).
 		Resource("dnsservices").
 		VersionedParams(&opts, scheme.ParameterCodec).
-		Watch()
+		Watch(context.TODO())
 }
 
 // Create takes the representation of a myResource and creates it.  Returns the server's representation of the myResource, and an error, if there is any.
@@ -102,7 +104,7 @@ func (c *myResources) Create(myResource *v1.DnsService) (result *v1.DnsService, 
 		Namespace(c.ns).
 		Resource("dnsservices").
 		Body(myResource).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -115,7 +117,7 @@ func (c *myResources) Update(myResource *v1.DnsService) (result *v1.DnsService, 
 		Resource("dnsservices").
 		Name(myResource.Name).
 		Body(myResource).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -127,7 +129,7 @@ func (c *myResources) Delete(name string, options *meta_v1.DeleteOptions) error 
 		Resource("dnsservices").
 		Name(name).
 		Body(options).
-		Do().
+		Do(context.TODO()).
 		Error()
 }
 
@@ -138,7 +140,7 @@ func (c *myResources) DeleteCollection(options *meta_v1.DeleteOptions, listOptio
 		Resource("dnsservices").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
 		Body(options).
-		Do().
+		Do(context.TODO()).
 		Error()
 }
 
@@ -151,7 +153,7 @@ func (c *myResources) Patch(name string, pt types.PatchType, data []byte, subres
 		SubResource(subresources...).
 		Name(name).
 		Body(data).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }

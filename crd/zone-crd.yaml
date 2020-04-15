@@ -30,7 +30,9 @@ spec:
                - namespace
                - platform 
                - serviceid 
-               - planid 
+               - planid
+               - spaceguid
+               - organizationguid
                - url1
                - url2
                properties:
@@ -74,6 +76,12 @@ spec:
                      type: string
                      minimum: 1
                   planid:
+                     type: string
+                     minimum: 1
+                  spaceguid:
+                     type: string
+                     minimum: 1
+                  organizationguid:
                      type: string
                      minimum: 1
                   url1:

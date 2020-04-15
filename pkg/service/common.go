@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -29,10 +30,20 @@ func HandleFuncError(m string, err error) {
 	if err != nil {
 		log.Infof("ERROR - %s %s\n", m, err)
 	}
+	return
 }
 
 func HandleFuncSucess(m string, v string) {
 	log.Infof("SUCESS - %s %s\n", m, v)
+}
+
+func TryCatch(m [2]string, err error) {
+	if err != nil {
+		log.Infof("ERROR - %s %s\n", m[0], err)
+		return
+	} else {
+		log.Infof("SUCESS - %s %s\n", m[0], m[1])
+	}
 }
 
 func HandleFuncCommonUpdate(crDZNew config.CrDZ, crDZOld config.CrDZ, crZONE []config.CrZONE) {
@@ -177,28 +188,76 @@ func HandleFuncCommonUpdate(crDZNew config.CrDZ, crDZOld config.CrDZ, crZONE []c
 
 		log.Infof("crDZOld.SpecDNS.Zone %s", crDZOld.SpecDNS.Zone)
 	}
-	printKIND(crDZOld)
+
 	// log.Infof("TMP %s", tmpSpec)
 	// log.Infof("URL %s", url)
 	if crDZNew.URL == crDZOld.URL {
-		log.Infof("########################\n")
-		if (crDZNew.SpecDNS.Description == "") && (crDZNew.SpecDNS.Hostname == "") &&
-			(crDZNew.SpecDNS.Operation == "") && (crDZNew.SpecDNS.Records == "") &&
-			(crDZNew.SpecDNS.Server == "") && (crDZNew.SpecDNS.Type == "") && (crDZNew.SpecDNS.Zone == "") {
-			// if crDZNew.SpecDNS.Description == "" {
-			crDZNew.SpecDNS.Description = crDZOld.SpecDNS.Description
-			crDZNew.SpecDNS.Hostname = crDZOld.SpecDNS.Hostname
-			crDZNew.SpecDNS.Operation = crDZOld.SpecDNS.Operation
-			crDZNew.SpecDNS.Records = crDZOld.SpecDNS.Records
-			crDZNew.SpecDNS.Server = crDZOld.SpecDNS.Server
-			crDZNew.SpecDNS.TTL = crDZOld.SpecDNS.TTL
-			crDZNew.SpecDNS.Type = crDZOld.SpecDNS.Type
-			crDZNew.SpecDNS.Zone = crDZOld.SpecDNS.Zone
-			log.Infof("-------------------------\n")
-			patchCrDNS(&crDZNew)
+		log.Infof("\n\n----------------------------------------------------------\n")
+		log.Infof("-----------\t UPDATE \t-----------\n")
+		log.Infof("----------------------------------------------------------\n")
+		printKIND(crDZOld)
+		if (crDZOld.SpecDNS.Description != "") && (crDZOld.SpecDNS.Hostname != "") &&
+			(crDZOld.SpecDNS.Operation != "") && (crDZOld.SpecDNS.Records != "") &&
+			(crDZOld.SpecDNS.Server != "") && (crDZOld.SpecDNS.Type != "") && (crDZOld.SpecDNS.Zone != "") {
+			if (crDZNew.SpecDNS.Description == "") && (crDZNew.SpecDNS.Hostname == "") &&
+				(crDZNew.SpecDNS.Operation == "") && (crDZNew.SpecDNS.Records == "") &&
+				(crDZNew.SpecDNS.Server == "") && (crDZNew.SpecDNS.Type == "") && (crDZNew.SpecDNS.Zone == "") {
+				// if crDZNew.SpecDNS.Description == "" {
+				crDZNew.SpecDNS.Description = crDZOld.SpecDNS.Description
+				crDZNew.SpecDNS.Hostname = crDZOld.SpecDNS.Hostname
+				crDZNew.SpecDNS.Operation = crDZOld.SpecDNS.Operation
+				crDZNew.SpecDNS.Records = crDZOld.SpecDNS.Records
+				crDZNew.SpecDNS.Server = crDZOld.SpecDNS.Server
+				crDZNew.SpecDNS.TTL = crDZOld.SpecDNS.TTL
+				crDZNew.SpecDNS.Type = crDZOld.SpecDNS.Type
+				crDZNew.SpecDNS.Zone = crDZOld.SpecDNS.Zone
+				log.Infof("\n\n##########################################################\n")
+				log.Infof("-----------\t UPDATE \t-----------\n")
+				log.Infof("##########################################################\n")
+				patchCrDNS(&crDZNew)
+			}
+		} else {
+			log.Infof("\n\n----------------------------------------------------------\n")
+			log.Infof("-----------\t UPDATE FIX \t-----------\n")
+			log.Infof("----------------------------------------------------------\n")
+			if crDZNew.URL != "" {
+				tmpURL := crDZNew.URL + "."
+				//Multiplas zonas
+				if len(crZONE) > 1 {
+					log.Infof("Multiplas Zonas")
+					log.Infof("%v", tmpURL)
+					for i := 0; i < len(crZONE); i++ {
+						crZONE[i].SpecZONE = getSpecZone(crDZNew, crZONE[i])
+						log.Infof("Comparação: %s -- %s", tmpURL, crZONE[i].Zone)
+						if strings.Index(tmpURL, crZONE[i].Zone) > 0 {
+							crDZNew.SpecZONE = crZONE[i].SpecZONE
+							crDZNew.SpecDNS = getSpecDnsCrZONE(crDZNew)
+							printKIND(crDZNew)
+							printZONE(crDZNew.CrZONE)
+							patchCrDNS(&crDZNew)
+							break
+						}
+					}
+				} else {
+					crZONE[0].SpecZONE = getSpecZone(crDZNew, crZONE[0])
+					log.Infof("Comparação: %s -- %s", tmpURL, crZONE[0].Zone)
+					if strings.Index(tmpURL, crZONE[0].Zone) > 0 {
+						crDZNew.SpecZONE = crZONE[0].SpecZONE
+						crDZNew.SpecDNS = getSpecDnsCrZONE(crDZNew)
+						printKIND(crDZNew)
+						printZONE(crDZNew.CrZONE)
+						patchCrDNS(&crDZNew)
+					}
+				}
+				printKIND(crDZNew)
+				printZONE(crDZNew.CrZONE)
+				log.Infof("\n\n##########################################################\n")
+				log.Infof("-----------\t UPDATE FIX \t-----------\n")
+				log.Infof("##########################################################\n")
+			}
 		}
 	}
-	log.Infof("crDZNEWW\n")
+	// log.Infof("crDZNEWW\n")
 	printKIND(crDZNew)
 }
 
@@ -222,17 +281,19 @@ func printKIND(dz config.CrDZ) {
 
 }
 
-func printZONE(dz config.CrDZ) {
-	log.Infof("AuthKey %s", dz.CrZONE.AuthKey)
-	log.Infof("BrokerVersion %s", dz.CrZONE.BrokerVersion)
-	log.Infof("BrokerIdentity %s", dz.CrZONE.BrokerIdentity)
-	log.Infof("Clusterid %s", dz.CrZONE.Clusterid)
-	log.Infof("Namespace %s", dz.CrZONE.Namespace)
-	log.Infof("Platform %s", dz.CrZONE.Platform)
-	log.Infof("Serviceid %s", dz.CrZONE.Serviceid)
-	log.Infof("Planid %s", dz.CrZONE.Planid)
-	log.Infof("Url1 %s", dz.CrZONE.Url1)
-	log.Infof("Url2 %s", dz.CrZONE.Url2)
+func printZONE(crZONE config.CrZONE) {
+	log.Infof("AuthKey %s", crZONE.AuthKey)
+	log.Infof("BrokerVersion %s", crZONE.BrokerVersion)
+	log.Infof("BrokerIdentity %s", crZONE.BrokerIdentity)
+	log.Infof("Clusterid %s", crZONE.Clusterid)
+	log.Infof("Namespace %s", crZONE.Namespace)
+	log.Infof("Platform %s", crZONE.Platform)
+	log.Infof("Serviceid %s", crZONE.Serviceid)
+	log.Infof("Planid %s", crZONE.Planid)
+	log.Infof("Organizationguid %s", crZONE.Organizationguid)
+	log.Infof("Spaceguid %s", crZONE.Spaceguid)
+	log.Infof("Url1 %s", crZONE.Url1)
+	log.Infof("Url2 %s", crZONE.Url2)
 	//log.Infof("Status %s", dz.CrZONE.Status)
 	//log.Infof("Message %s", dz.CrZONE.Message)
 
@@ -254,7 +315,9 @@ func mapToInt(a string, b string, get map[string]interface{}) (int64, bool) {
 
 func getSpecZone(crDZ config.CrDZ, crZONE config.CrZONE) config.SpecZONE {
 	dynamicClient, _ := dynamic.NewForConfig(crDZ.Cfg)
-	get, err := dynamicClient.Resource(config.VirtualServiceZONE).Namespace(crZONE.NsZONE).Get(crZONE.NameZONE, metav1.GetOptions{})
+	get, err := dynamicClient.Resource(config.VirtualServiceZONE).Namespace(crZONE.NsZONE).Get(context.TODO(), crZONE.NameZONE, metav1.GetOptions{})
+	tmpst := [2]string{"a", "B"}
+	TryCatch(tmpst, err)
 	if err != nil {
 		//log.Infof("EROOR: %s", err)
 		return crZONE.SpecZONE
@@ -278,15 +341,20 @@ func getSpecZone(crDZ config.CrDZ, crZONE config.CrZONE) config.SpecZONE {
 	crZONE.Platform, _ = mapToString("spec", "platform", mapZONE)
 	crZONE.Serviceid, _ = mapToString("spec", "serviceid", mapZONE)
 	crZONE.Planid, _ = mapToString("spec", "planid", mapZONE)
+	crZONE.Spaceguid, _ = mapToString("spec", "spaceguid", mapZONE)
+	crZONE.Organizationguid, _ = mapToString("spec", "organizationguid", mapZONE)
 	crZONE.Url1, _ = mapToString("spec", "url1", mapZONE)
 	crZONE.Url2, _ = mapToString("spec", "url2", mapZONE)
 	return crZONE.SpecZONE
 }
 
 func getProvision(dz *config.CrDZ) (string, string) {
-	var state, description string
-
-	url := dz.SpecZONE.Server + dz.SpecZONE.Url1 + dz.CrDNS.UID + "/last_operation?service_id=" + dz.Serviceid + "&plan_id=" + dz.Planid + "&operation=" + dz.Operation
+	var state, description, url string
+	if (dz.CrZONE.Spaceguid != "") || (dz.CrZONE.Organizationguid != "") {
+		url = dz.SpecZONE.Server + "/data/instance/" + dz.CrDNS.UID
+	} else {
+		url = dz.SpecZONE.Server + dz.SpecZONE.Url1 + dz.CrDNS.UID + "/last_operation?service_id=" + dz.Serviceid + "&plan_id=" + dz.Planid + "&operation=" + dz.Operation
+	}
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -299,10 +367,10 @@ func getProvision(dz *config.CrDZ) (string, string) {
 		HandleFuncSucess("SERVER:", "string(req)")
 	}
 	req.Header.Set("X-Broker-API-Version", "2.13")
-	req.Header.Set("X-Broker-Api-Originating-Identity", "kubernetes eyJ1c2VybmFtZSI6Imt1YmUtYWRtaW4tcHhsMXBzY210MDAyIiwidWlkIjoiIiwiZ3JvdXBzIjpbInN5c3RlbTptYXN0ZXJzIiwic3lzdGVtOmF1dGhlbnRpY2F0ZWQiXX0=")
-	req.Header.Set("cache-control", "no-cache")
 	req.Header.Set("Authorization", dz.AuthKey)
-	req.Header.Set("Postman-Token", "fd592644-df29-4ca5-ae8a-0c590990960b")
+	if (dz.CrZONE.Spaceguid == "") || (dz.CrZONE.Organizationguid == "") {
+		req.Header.Set("X-Broker-Api-Originating-Identity", dz.CrZONE.BrokerIdentity)
+	}
 	resp, err := client.Do(req)
 	if err == nil {
 		defer resp.Body.Close()
@@ -312,12 +380,36 @@ func getProvision(dz *config.CrDZ) (string, string) {
 		} else {
 			HandleFuncSucess("REQUEST:", string(body))
 			bodyString := string(body)
-			log.Infof("%s", body)
+			jsonMAP := make(map[string]interface{})
+			_ = json.Unmarshal([]byte(bodyString), &jsonMAP)
+			// log.Infof("%s", body)
+			// log.Infof("jsonMAP %s\n", jsonMAP)
 			if strings.Index(bodyString, "state") > 0 {
-				state = bodyString[(strings.Index(bodyString, "state") + 9):(strings.Index(bodyString, ",") - 1)]
+				// PROVISIONING
+				// DEPROVISIONED
+				// PROVISION_FAIL
+				if (strings.Index(bodyString, "PROVISIONING") > 0) ||
+					(strings.Index(bodyString, "DEPROVISIONED") > 0) ||
+					(strings.Index(bodyString, "PROVISION_FAIL") > 0) {
+					state = bodyString[strings.Index(bodyString, "state")+8:]
+					state = state[:strings.Index(state, ",")]
+					state = strings.Replace(state, "\"", "", -1)
+				} else if strings.Index(bodyString, "PROVISIONED") > 0 {
+					state = "PROVISIONED"
+				} else {
+					state = bodyString[strings.Index(bodyString, "state")+8:]
+					state = state[:strings.Index(state, ",")]
+					state = strings.Replace(state, "\"", "", -1)
+				}
 			}
 			if strings.Index(bodyString, "description") > 0 {
-				description = bodyString[(strings.Index(bodyString, "description") + 15):(strings.LastIndex(bodyString, "\"") - 1)]
+				if (strings.Index(bodyString, "PROVISIONING") > 0) ||
+					(strings.Index(bodyString, "DEPROVISIONED") > 0) ||
+					(strings.Index(bodyString, "PROVISION_FAIL") > 0) {
+					description = ""
+				} else {
+					description = bodyString[(strings.Index(bodyString, "description") + 15):(strings.LastIndex(bodyString, "\"") - 1)]
+				}
 			}
 			HandleFuncSucess("REQUEST:", state)
 			HandleFuncSucess("REQUEST:", description)
@@ -330,7 +422,7 @@ func getProvision(dz *config.CrDZ) (string, string) {
 
 func getSpecDnsMAP(dz config.CrDZ) config.SpecDNS {
 	dynamicClient, _ := dynamic.NewForConfig(dz.CFG.Cfg)
-	get, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Get(dz.NameDNS, metav1.GetOptions{})
+	get, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Get(context.TODO(), dz.NameDNS, metav1.GetOptions{})
 	if err != nil {
 		log.Infof("ERROR: %s", err)
 		return dz.CrDNS.SpecDNS
@@ -381,10 +473,21 @@ func getSpecDnsCrZONE(dz config.CrDZ) config.SpecDNS {
 func getStatus(dz config.CrDZ) [2]string {
 	//var tmp unstructured.Unstructured
 	dynamicClient, _ := dynamic.NewForConfig(dz.Cfg)
-	get, _ := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Get(dz.NameDNS, metav1.GetOptions{})
-
+	get, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Get(context.TODO(), dz.NameDNS, metav1.GetOptions{})
+	if err != nil {
+		HandleFuncError("getStatus GET:", err)
+		return [2]string{"err", "err"}
+	} else {
+		HandleFuncSucess("getStatus GET:", "string(get)")
+	}
 	//inicio do for para NsZONE
-	getToList, _ := get.ToList()
+	getToList, err := get.ToList()
+	if err != nil {
+		HandleFuncError("getStatus GET:", err)
+		return [2]string{"err", "err"}
+	} else {
+		HandleFuncSucess("getStatus GET:", "string(get)")
+	}
 	mapSERVICE := getToList.UnstructuredContent()
 	errStatus := mapSERVICE["status"]
 	if errStatus != nil {
@@ -401,7 +504,7 @@ func getStatus(dz config.CrDZ) [2]string {
 
 func getAnnotationsCrDZ(dz config.CrDZ) config.CrDNS {
 
-	//TODO mudar para usar tanto GetAnnotations quanto o estado
+	//TODO mudar para usar tanto GetAnnotations quanto o Estado
 	//TODO deletar quando o state estiver Pending e a message operation
 	//TODO quando tiver o operation tentar deletar
 
@@ -470,19 +573,30 @@ func fetchZone(dz config.CrDZ, crZONE []config.CrZONE) config.CrZONE {
 func patchValueStatus(dz config.CrDZ, state string, message string) {
 	var tmp unstructured.Unstructured
 	dynamicClient, _ := dynamic.NewForConfig(dz.Cfg)
-	get, _ := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.CrDNS.NsDNS).Get(dz.CrDNS.NameDNS, metav1.GetOptions{})
-	getlist, _ := get.ToList()
+	get, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.CrDNS.NsDNS).Get(context.TODO(), dz.CrDNS.NameDNS, metav1.GetOptions{})
+	if err != nil {
+		HandleFuncError("patchValueStatus GET:", err)
+		return
+	}
+	getlist, err := get.ToList()
+	if err != nil {
+		HandleFuncError("patchValueStatus GETLIST:", err)
+		return
+	}
 	getservice := getlist.UnstructuredContent()
 	getservice["status"] = map[string]interface{}{"message": message, "state": state}
 	delete(getservice, "items")
 	tmp.Object = getservice
-	_, _ = dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).UpdateStatus(&tmp, metav1.UpdateOptions{})
+	_, _ = dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).UpdateStatus(context.TODO(), &tmp, metav1.UpdateOptions{})
 }
 
 func patchAnnotations(dz config.CrDZ) {
 	var tmp unstructured.Unstructured
 	dynamicClient, _ := dynamic.NewForConfig(dz.Cfg)
 	annotations, mapAnnotations := getAnnotationsNEW(&dz)
+	if annotations == "" {
+		return
+	}
 	//log.Infof("\nTT%s", len(annotations))
 	//log.Infof("%s", annotations)
 	//log.Infof("getAnnotations%s", mapAnnotations)
@@ -506,7 +620,7 @@ func patchAnnotations(dz config.CrDZ) {
 	} else if (len(annotations) - 3) > 0 {
 		annotations = annotations[0:(len(annotations)-3)] + "," + tmpAnnotations
 	} else {
-		get, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Get(dz.NameDNS, metav1.GetOptions{})
+		get, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Get(context.TODO(), dz.NameDNS, metav1.GetOptions{})
 		if err != nil {
 			log.Infof("ERROR: %s", err)
 			return
@@ -546,7 +660,7 @@ func patchAnnotations(dz config.CrDZ) {
 	mapAnnotations["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})["kubectl.kubernetes.io/last-applied-configuration"] = annotations
 	delete(mapAnnotations, "items")
 	tmp.Object = mapAnnotations
-	_, _ = dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Update(&tmp, metav1.UpdateOptions{})
+	_, _ = dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.NsDNS).Update(context.TODO(), &tmp, metav1.UpdateOptions{})
 	//--------------------
 	//log.Infof("\nannotations%s\n getMap%s", annotations, tmpAnnotations)
 
@@ -559,7 +673,7 @@ func patchValueInt(value int, path string, dz *config.CrDZ) {
 	patchPayload[0].Value = value
 	patchBytes, _ := json.Marshal(patchPayload)
 	dynamicClient, _ := dynamic.NewForConfig(dz.Cfg)
-	_, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.CrDNS.NsDNS).Patch(dz.CrDNS.NameDNS, types.JSONPatchType, patchBytes, metav1.UpdateOptions{})
+	_, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.CrDNS.NsDNS).Patch(context.TODO(), dz.CrDNS.NameDNS, types.JSONPatchType, patchBytes, metav1.PatchOptions{})
 	if err != nil {
 		HandleFuncError("PATCH:", err)
 	} else {
@@ -574,7 +688,7 @@ func patchValueString(value string, path string, dz *config.CrDZ) {
 	patchPayload[0].Value = value
 	patchBytes, _ := json.Marshal(patchPayload)
 	dynamicClient, _ := dynamic.NewForConfig(dz.Cfg)
-	_, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.CrDNS.NsDNS).Patch(dz.CrDNS.NameDNS, types.JSONPatchType, patchBytes, metav1.UpdateOptions{})
+	_, err := dynamicClient.Resource(config.VirtualServiceSERVICE).Namespace(dz.CrDNS.NsDNS).Patch(context.TODO(), dz.CrDNS.NameDNS, types.JSONPatchType, patchBytes, metav1.PatchOptions{})
 	if err != nil {
 		HandleFuncError("PATCH:", err)
 	} else {
@@ -616,10 +730,14 @@ func HandleFuncCommonAdd(crDZ config.CrDZ, crZONE []config.CrZONE) {
 	//TODO 2) Status da aplicaçao
 	//TODO 3) atualizar o spec com as informaçoes não passadas
 
+	// log.Infof("ZONAZONAZONAZONAZONAZONA %s\n", crZONE)
 INIT:
 	crDZ.SpecDNS = getSpecDnsMAP(crDZ)
 	//printKIND(crDZ)
 	tmp := getStatus(crDZ)
+	if (tmp[0] == "err") || (tmp[1] == "err") {
+		return
+	}
 	crDZ.CrDNS.Message = tmp[0]
 	crDZ.CrDNS.State = tmp[1]
 
@@ -658,7 +776,8 @@ INIT:
 					//Unica zona de dns
 				} else {
 					crZONE[0].SpecZONE = getSpecZone(crDZ, crZONE[0])
-
+					// log.Infof("ZONAZONAZONAZONAZONAZONA %s\n")
+					printZONE(crZONE[0])
 					log.Infof("Comparação: %s -- %s", tmpURL, crZONE[0].Zone)
 					if strings.Index(tmpURL, crZONE[0].Zone) > 0 {
 						crDZ.SpecZONE = crZONE[0].SpecZONE
@@ -691,15 +810,29 @@ INIT:
 		}
 		//patchValueStatus(crDZ, "Pending", "Creating...")
 	} else if crDZ.CrDNS.State == "Failed" {
-		log.Infof("TESTEration\n")
+		// log.Infof("TESTEration\n")
+		log.Infof("########### ADD FIX Failed\n")
+		log.Infof("Name Namespace %s %s\n", crDZ.NsDNS, crDZ.NameDNS)
+		if crDZ.CrDNS.Message == "Error, already used url" {
+			tmpCNAME, errUrl := net.LookupCNAME(crDZ.CrDNS.URL)
+			if errUrl != nil {
+				HandleFuncError("ADD FIX Failed", errUrl)
+				return
+			} else {
+				if tmpCNAME == crDZ.CrDNS.Records {
+					patchValueStatus(crDZ, "Running", "provision job complete")
+				}
+			}
+		}
+		log.Infof("ADD FIX #############")
 
 	} else if crDZ.CrDNS.State == "Running" {
-		log.Infof("###########TESTE  #############")
+		// log.Infof("###########TESTE  #############")
 		if crDZ.CrDNS.Message == "provision job complete" {
 
 			if crDZ.CrDNS.Description == "" || crDZ.CrDNS.Records == "" || crDZ.CrDNS.Hostname == "" {
-				log.Infof("###########TESTE 1 ENTRADA #############")
-				printKIND(crDZ)
+				log.Infof("########### ADD FIX")
+				// printKIND(crDZ)
 				if crDZ.URL != "" {
 					tmpURL := crDZ.URL + "."
 					//Multiplas zonas
@@ -712,6 +845,8 @@ INIT:
 							if strings.Index(tmpURL, crZONE[i].Zone) > 0 {
 								crDZ.SpecZONE = crZONE[i].SpecZONE
 								crDZ.SpecDNS = getSpecDnsCrZONE(crDZ)
+								printKIND(crDZ)
+								printZONE(crDZ.CrZONE)
 								patchCrDNS(&crDZ)
 								break
 							}
@@ -722,21 +857,26 @@ INIT:
 						if strings.Index(tmpURL, crZONE[0].Zone) > 0 {
 							crDZ.SpecZONE = crZONE[0].SpecZONE
 							crDZ.SpecDNS = getSpecDnsCrZONE(crDZ)
+							printKIND(crDZ)
+							printZONE(crDZ.CrZONE)
 							patchCrDNS(&crDZ)
 						}
 					}
-					printZONE(crDZ)
-					log.Infof("###########TESTE 1 SAINDO #############")
+					printKIND(crDZ)
+					printZONE(crDZ.CrZONE)
+					log.Infof("ADD FIX #############")
 				}
 			}
 		}
-		// if
 	}
 	patchAnnotations(crDZ)
 	//Chamar add
 	//TODO checar se as variaveis de getSpecDNSMAP estao preenchidas
 	//TODO checar se as variais de getSpecDnsZone estao preenchidas
 	tmpStatus := getStatus(crDZ)
+	if (tmpStatus[0] == "err") || (tmpStatus[1] == "err") {
+		return
+	}
 	crDZ.Status.Message = tmpStatus[0]
 	crDZ.Status.State = tmpStatus[1]
 	//log.Infof("crDZ.CrDNS.State %s", crDZ.CrDNS.State)
@@ -805,16 +945,30 @@ func HandleFuncCommonDelete(dz config.CrDZ, crZONE []config.CrZONE) {
 		//dz.SpecDNS = getSpecDnsMAP(dz)
 		printKIND(dz)
 		//print("%s ", dz.Cache.GetOwnerReferences())
+	} else {
+		crZONE[0].SpecZONE = getSpecZone(dz, crZONE[0])
+		// log.Infof("ZONAZONAZONAZONAZONAZONA %s\n")
+		printZONE(crZONE[0])
+		log.Infof("Comparação: %s -- %s", tmpURL, crZONE[0].Zone)
+		if strings.Index(tmpURL, crZONE[0].Zone) > 0 {
+			dz.SpecZONE = crZONE[0].SpecZONE
+			dz.SpecDNS = getSpecDnsCrZONE(dz)
+			// patchCrDNS(&dz)
+		}
 	}
 	if dz.CrDNS.State == "Running" {
 		if dz.SpecDNS.Operation != "" {
 			log.Infof("HandleFuncDeleteNEW")
 			HandleFuncDeleteNEW(dz)
+		} else if dz.CrDNS.State == "provision job complete" {
+			HandleFuncDeleteNEW(dz)
 		}
 	} else if dz.CrDNS.State == "Failed" {
 		log.Infof("-- Delete --")
 	} else if dz.CrDNS.State == "Pending" {
-		log.Infof("-- Delete --")
+		if match, _ := regexp.MatchString("[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}", dz.CrDNS.Message); match == true {
+			HandleFuncDeleteNEW(dz)
+		}
 	}
 
 }

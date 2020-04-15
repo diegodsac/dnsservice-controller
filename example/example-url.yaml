@@ -1,6 +1,37 @@
 apiVersion: io.bb.com.br/v1
 kind: DnsService
 metadata:
-  name: k8sex
+  name: k8881
 spec:
-  url: k8sex.desenv.bb.com.br
+  url: k8881.desenv.bb.com.br
+
+# cat <<EOF | kubectl apply -f -
+# apiVersion: io.bb.com.br/v1
+# kind: DnsService
+# metadata:
+#   name: k8321
+# spec:
+#   url: k8321.nuvem.desenv.bb.com.br
+#   server: https://broker.nuvem.bb.com.br
+#   zone: hm.bb.com.br.
+#   hostname: k8321.
+#   type: CNAME
+#   ttl: 3600
+#   records: nuvem.hm.dc.bb.com.br.
+#   description: k8s-servicos
+# EOF
+
+# cat <<EOF | kubectl apply -f -
+# apiVersion: io.bb.com.br/v1
+# kind: DnsService
+# metadata:
+#    name: k8exsm
+# spec:
+#    server: https://broker.nuvem.bb.com.br
+#    zone: servicos.bb.com.br.
+#    hostname: k8exsm.
+#    type: CNAME
+#    ttl: 3600
+#    records: svc-nuvem.dc.bb.com.br.
+#    description: k8s-servicos
+# EOF8390f034-63c8-11ea-a92b-0242c0a80101

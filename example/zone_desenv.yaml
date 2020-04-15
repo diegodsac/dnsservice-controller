@@ -1,0 +1,23 @@
+apiVersion: io.bb.com.br/v1
+kind: DnsZone
+metadata:
+   name: dnsbb
+spec:
+   authkey: "Basic azhzLWJiY2xvdWQ6NTE0ODBmOTUtN2RiNS00MzQ2LTg4ZGYtODliNmQ0MzcwMTI3"
+   server: "https://oaas-broker.sgh.bb.com.br"
+   zone: "desenv.bb.com.br."
+   records: "nuvem.desenv.dc.bb.com.br."
+   type: "CNAME"
+   ttl: "3600"
+   description: "Rancher"
+   brokerversion: "2.13"
+   brokeridentity: "k8s-bbcloud eyJwcm9qZWN0X2lkIjogImRlc2VudiJ9Cg=="
+   clusterid: "63cdf3a0-134d-11e9-85a6-7e5c1a25d90f"
+   namespace: "automation-broker"
+   platform: "kubernetes"
+   serviceid: "dns-v1"
+   planid: "default"
+   spaceguid: "001"
+   organizationguid: "001"
+   url1: "/osb/v2/service_instances/"
+   url2: "?accepts_incomplete=true"

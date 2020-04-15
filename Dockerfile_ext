@@ -1,0 +1,37 @@
+#0.5.3
+FROM golang:1.13.0 as builder
+
+ENV DEP_VERSION=v0.5.3 \
+    #GOPATH=/usr/local/go \
+    CGO_ENABLED=0 \
+    GOARCH=amd64 \
+    GOOS=linux 
+
+# RUN echo $GOPATH
+
+COPY vendor/ $GOPATH/src
+
+# WORKDIR GOPATH/src
+
+# COPY vendor/ .
+
+COPY . $GOPATH/src/dnsservice-controller/
+
+WORKDIR $GOPATH/src/dnsservice-controller/
+
+RUN go build 
+
+FROM alpine as go
+
+ENV DEP_VERSION=v0.5.3 \
+    GOPATH=/go \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 \
+    NAMESPACE=dnsservice \
+    NAME=dnsbb
+
+COPY --from=builder $GOPATH/src/dnsservice-controller/dnsservice-controller /bin/dnsservice-controller
+
+CMD ["/bin/dnsservice-controller"]  
+

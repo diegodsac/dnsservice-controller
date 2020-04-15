@@ -2,16 +2,16 @@ package config
 
 import (
 	dnsserviceclientset "dnsservice-controller/pkg/client/clientset/versioned"
+	"log"
+	"net/http"
+
 	"github.com/gorilla/mux"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"log"
-	"net/http"
 )
-
 
 type CFG struct {
 	client           kubernetes.Clientset
@@ -45,17 +45,18 @@ type Status struct {
 }
 type SpecZONE struct {
 	SpecDNSeZONE
-	AuthKey        string `json:"authkey,omitempty"`
-	BrokerVersion  string `json:"BrokerVersion,omitempty"`
-	BrokerIdentity string `json:"BrokerIdentity,omitempty"`
-	Clusterid      string `json:"clusterid,omitempty"`
-	Namespace      string `json:"namespace,omitempty"`
-	Platform       string `json:"platform,omitempty"`
-	Serviceid      string `json:"Serviceid,omitempty"`
-	Planid         string `json:"Planid,omitempty"`
-	Url1           string `json:"Url1,omitempty"`
-	Url2           string `json:"Url2,omitempty"`
-
+	AuthKey          string `json:"authkey,omitempty"`
+	BrokerVersion    string `json:"BrokerVersion,omitempty"`
+	BrokerIdentity   string `json:"BrokerIdentity,omitempty"`
+	Clusterid        string `json:"clusterid,omitempty"`
+	Namespace        string `json:"namespace,omitempty"`
+	Platform         string `json:"platform,omitempty"`
+	Serviceid        string `json:"Serviceid,omitempty"`
+	Planid           string `json:"Planid,omitempty"`
+	Spaceguid        string `json:"spaceguid,omitempty"`
+	Organizationguid string `json:"organizationguid,omitempty"`
+	Url1             string `json:"Url1,omitempty"`
+	Url2             string `json:"Url2,omitempty"`
 }
 
 type CrZONE struct {
